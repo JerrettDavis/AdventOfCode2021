@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using AdventRunner.Common.Extensions;
@@ -26,19 +27,16 @@ namespace AdventRunner.Solutions
         
         public async Task<ISolution> GetSolutionAsync()
         {
-            _profiler.Start();
-            
             var content = await GetFileContentsAsync();
-            
-            _profiler.MarkFileReadComplete();
+
+            _profiler.Start();
             
             var parsed = ParseData(content);
             
             _profiler.MarkFileParseComplete();
             
             var partOne = parsed.GreaterThanPrevious()
-                .Skip(1) // Skip the first as it'll always be true since there's no previous
-                .Count(r => r); // Only need the counts of the trues   
+                .Count(r => r) - 1; // Only need the counts of the trues and we need to discard the first   
             
             _profiler.MarkPartAComplete();
             
@@ -46,8 +44,7 @@ namespace AdventRunner.Solutions
                 .Where(r => r.PrevItem > int.MinValue && r.NextItem > int.MinValue) // Ignore first and last items
                 .Select(r => r.PrevItem + r.CurrentItem + r.NextItem) // Add everything up
                 .GreaterThanPrevious()
-                .Skip(1) // Skip the first as it'll always be true
-                .Count(r => r); // Only need the counts of the trues
+                .Count(r => r) - 1; // Only need the counts of the trues and we need to discard the first as it'll always be true
             
             _profiler.MarkParkBComplete();
 
@@ -64,11 +61,16 @@ namespace AdventRunner.Solutions
             return _fileContents;
         }
 
-        private static IList<int> ParseData(string input) =>
+        private static IReadOnlyCollection<int> ParseData(string input) =>
             input
                 .Split(Environment.NewLine)
-                .Where(r => !string.IsNullOrWhiteSpace(r))
-                .Select(int.Parse)
-                .ToList();
+                .Select(r =>
+                {
+                    var result = 0;
+                    // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+                    foreach (var c in r) result = result * 10 + (c - '0');
+                    return result;
+                })
+                .ToArray();
     }
 }

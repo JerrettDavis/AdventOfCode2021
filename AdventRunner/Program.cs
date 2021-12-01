@@ -15,7 +15,7 @@ Console.WriteLine($"Part B: {solution.PartB}");
 Console.WriteLine("---------------------------------");
 profiler.PrintStats();
 Console.WriteLine("---------------------------------");
-var profiles = Enumerable.Range(1, 1000)
+var profiles = Enumerable.Range(1, 10000)
     .Select(async _ =>
     {
         await executor.GetSolutionAsync();
@@ -32,7 +32,7 @@ var profiles = Enumerable.Range(1, 1000)
     .ToDictionary(x => x.Key, x => x.Value);
 
 var prev = 0.0;
-Console.WriteLine("Averages of 1000 runs (Times in Milliseconds).");
+Console.WriteLine("Averages of 10,000 runs (Times in Milliseconds).");
 foreach (var (key, value) in profiles)
 {
     Console.WriteLine($"{key} - Step: {value - prev:F4} | Total: {value:F4}");
