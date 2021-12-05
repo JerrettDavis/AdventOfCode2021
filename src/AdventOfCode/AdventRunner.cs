@@ -1,7 +1,7 @@
 using System.Reflection;
 using Advent.Common.Interfaces;
+using Advent2021.Solvers;
 using AdventOfCode.Common.Exceptions;
-using AdventOfCode.Common.Services;
 
 namespace AdventOfCode;
 
@@ -23,7 +23,7 @@ public static class AdventRunner
     {
         return year switch
         {
-            2021 => typeof(Advent2021.Solvers.Day01).Assembly,
+            2021 => typeof(Day01).Assembly,
             _ => throw new MissingYearException($"No solvers for the year '{year}'")
         };
     }

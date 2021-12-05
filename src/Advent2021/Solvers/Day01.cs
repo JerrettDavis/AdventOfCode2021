@@ -23,12 +23,6 @@ public class Day01: ISolver
         private static IReadOnlyCollection<int> ParseData(string input) =>
             input
                 .Split(Environment.NewLine)
-                .Select(r =>
-                {
-                    var result = 0;
-                    // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-                    foreach (var c in r) result = result * 10 + (c - '0');
-                    return result;
-                })
+                .Select(r => r.ToInt())
                 .ToArray();
     }

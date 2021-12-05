@@ -7,16 +7,16 @@ var rootCommand = new RootCommand
 {
     new Option<int>(
         "--year",
-        getDefaultValue: () => DateTime.Now.Year,
-        description: "The year for which the solution is being ran"),
+        () => DateTime.Now.Year,
+        "The year for which the solution is being ran"),
     new Option<int>(
         "--day",
-        getDefaultValue: () => 1,
-        description: "The day's solution to run"),
+        () => 1,
+        "The day's solution to run"),
     new Option<string>(
         "--input-store",
-        getDefaultValue: () => "Data",
-        description: "The directory containing the input data")
+        () => "Data",
+        "The directory containing the input data")
 };
 
 rootCommand.Description = "A simple app to solve the yearly Advent of Code";
