@@ -15,41 +15,20 @@ public class Day04 : ISolver
         var lines = input.Split("\n");
         var moves = lines[0]
             .Split(',')
-            .Select(r => r.ToInt());
+            .Select(r => r.ToInt())
+            .ToArray();
         var boards = lines
             .Skip(1)
             .ToBoards()
             .ToArray();
-
-        var solution = PlayBingo(moves, boards);
+        var games = moves.GetBingosInOrder(boards).ToList();
+        var partA = games.First().score;
+        var partB = games.Last().score;
         Console.WriteLine($"Took: {stopwatch.Elapsed.TotalMilliseconds}");
-        return new Solution(solution.ToString(), null!);
+        return new Solution(partA.ToString(), partB.ToString());
     }
 
-    private static int PlayBingo(
-        IEnumerable<int> moves, 
-        IReadOnlyCollection<Board> boards)
-    {
-        foreach (var move in moves)
-        {
-            var result = PlayMove(boards, move);
-            if (result.HasValue) return result.Value;
-        }
 
-        return -1;
-    }
-
-    private static int? PlayMove(IEnumerable<Board> boards, int move)
-    {
-        foreach (var board in boards)
-        {
-            var madeMove = board.TryMakeMove(move);
-            if (madeMove && board.HasBingo())
-                return board.UncalledNumbers.Sum() * move;
-        }
-
-        return null;
-    }
 }
 
 public class Board
@@ -178,5 +157,56 @@ public static partial class EnumerableExtensions
 
         if (boardRows.Count > 0)
             yield return new Board(boardRows);
+    }
+
+    public static IEnumerable<(Board board, int score)> GetBingosInOrder(
+        this IEnumerable<int> moves,
+        IReadOnlyCollection<Board> boards)
+    {
+        var winningBoards = new HashSet<Board>();
+        var m = 0;
+        foreach (var move in moves)
+        {
+            if (winningBoards.Count == boards.Count) yield break;
+            
+            var b = boards.Except(winningBoards);
+            var c = 0;
+            foreach (var b1 in boards)
+            {
+                Console.WriteLine($"---------------- BOARD {c++} | MOVE {m} ({move}) -------------------");
+                Console.WriteLine(b1.ToStringWithCalled());
+            }
+            m++;
+            var result = b.PlayMove(move);
+            var (board, score) = result.FirstOrDefault(r => r.score.HasValue);
+            if (score == null) continue;
+            winningBoards.Add(board);
+            yield return (board, score.Value);
+        }
+    }
+
+    public static int PlayBingo(
+        this IEnumerable<int> moves, 
+        IReadOnlyCollection<Board> boards)
+    {
+        foreach (var move in moves)
+        {
+            var result = boards.PlayMove(move);
+            var (_, score) = result.FirstOrDefault(r => r.score.HasValue);
+            if (score != null) return score.Value;
+        }
+
+        return -1;
+    }
+
+    public static IEnumerable<(Board board, int? score)> PlayMove(
+        this IEnumerable<Board> boards, int move)
+    {
+        foreach (var board in boards)
+        {
+            var madeMove = board.TryMakeMove(move);
+            if (madeMove && board.HasBingo())
+                yield return (board, board.UncalledNumbers.Sum() * move);
+        }
     }
 }
