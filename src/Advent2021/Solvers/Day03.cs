@@ -15,7 +15,7 @@ public class Day03 : ISolver
          * we can determine the average value of each row. If we sum..
          */
 
-        var parsed = input.Split('\n');
+        var parsed = input.Split(Environment.NewLine);
 
         return new Solution(SolvePartA(parsed).ToString(), SolvePartB(parsed).ToString());
     }

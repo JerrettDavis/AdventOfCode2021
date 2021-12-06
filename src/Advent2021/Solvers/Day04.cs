@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using Advent.Common.Extensions;
@@ -12,7 +13,7 @@ public class Day04 : ISolver
     {
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        var lines = input.Split("\n");
+        var lines = input.Split(Environment.NewLine);
         var moves = lines[0]
             .Split(',')
             .Select(r => r.ToInt())
@@ -21,25 +22,26 @@ public class Day04 : ISolver
             .Skip(1)
             .ToBoards()
             .ToArray();
-        var games = moves.GetBingosInOrder(boards).ToList();
+        var games = moves
+            .GetBingosInOrder(boards)
+            .ToList();
         var partA = games.First().score;
         var partB = games.Last().score;
         Console.WriteLine($"Took: {stopwatch.Elapsed.TotalMilliseconds}");
         return new Solution(partA.ToString(), partB.ToString());
     }
-
-
 }
 
 public class Board
 {
-    public int[][] Numbers { get; }
-    public int[] UncalledNumbers => _allNumbers.Except(_moves).ToArray();
-    public int Rows { get; }
-    public int Columns { get; }
+    private int[][] Numbers { get; }
+    public IEnumerable<int> UncalledNumbers => _allNumbers.Except(_moves);
+    private int Rows { get; }
+    private int Columns { get; }
+    
     private readonly HashSet<int> _allNumbers;
     private readonly HashSet<int> _moves;
-    private int _minMoves;
+    private readonly int _minMoves;
 
     public Board(IEnumerable<string> input)
     {
@@ -47,7 +49,7 @@ public class Board
         _moves = new HashSet<int>();
         Numbers = input
             .Select(r => r.Split(' ')
-                .Where(r => !string.IsNullOrWhiteSpace(r))
+                .Where(v => !string.IsNullOrWhiteSpace(v))
                 .Select(n =>
                 {
                     var val = n.ToInt();
@@ -137,7 +139,6 @@ public static partial class EnumerableExtensions
 {
     public static IEnumerable<Board> ToBoards(this IEnumerable<string> rows)
     {
-
         var boardRows = new List<string>();
         foreach (var row in rows)
         {
@@ -150,9 +151,7 @@ public static partial class EnumerableExtensions
                 yield return board;
             }
             else
-            {
                 boardRows.Add(row);
-            }
         }
 
         if (boardRows.Count > 0)
@@ -161,52 +160,37 @@ public static partial class EnumerableExtensions
 
     public static IEnumerable<(Board board, int score)> GetBingosInOrder(
         this IEnumerable<int> moves,
-        IReadOnlyCollection<Board> boards)
+        IEnumerable<Board> boards)
     {
         var winningBoards = new HashSet<Board>();
-        var m = 0;
+        var boardList = boards.ToArray();
         foreach (var move in moves)
         {
-            if (winningBoards.Count == boards.Count) yield break;
-            
-            var b = boards.Except(winningBoards);
-            var c = 0;
-            foreach (var b1 in boards)
-            {
-                Console.WriteLine($"---------------- BOARD {c++} | MOVE {m} ({move}) -------------------");
-                Console.WriteLine(b1.ToStringWithCalled());
-            }
-            m++;
-            var result = b.PlayMove(move);
+            if (winningBoards.Count == boardList.Length) yield break;
+
+            var result = boardList
+                .Except(winningBoards)
+                .PlayMove(move)
+                .ToArray();
             var (board, score) = result.FirstOrDefault(r => r.score.HasValue);
             if (score == null) continue;
-            winningBoards.Add(board);
+            
+            var allWins = result
+                .Where(r => r.score.HasValue)
+                .Select(r => r.board);
+            foreach(var win in allWins)
+                winningBoards.Add(win);
+            
             yield return (board, score.Value);
         }
     }
 
-    public static int PlayBingo(
-        this IEnumerable<int> moves, 
-        IReadOnlyCollection<Board> boards)
-    {
-        foreach (var move in moves)
-        {
-            var result = boards.PlayMove(move);
-            var (_, score) = result.FirstOrDefault(r => r.score.HasValue);
-            if (score != null) return score.Value;
-        }
-
-        return -1;
-    }
-
-    public static IEnumerable<(Board board, int? score)> PlayMove(
+    private static IEnumerable<(Board board, int? score)> PlayMove(
         this IEnumerable<Board> boards, int move)
     {
-        foreach (var board in boards)
-        {
-            var madeMove = board.TryMakeMove(move);
-            if (madeMove && board.HasBingo())
-                yield return (board, board.UncalledNumbers.Sum() * move);
-        }
+        return boards.Select(board => new {board, madeMove = board.TryMakeMove(move)})
+            .Where(t => t.madeMove && t.board.HasBingo())
+            .Select(t => (t.board, t.board.UncalledNumbers.Sum() * move))
+            .Select(dummy => ((Board board, int? score)) dummy);
     }
 }
