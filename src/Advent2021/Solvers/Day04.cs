@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using Advent.Common.Extensions;
@@ -82,30 +81,40 @@ public class Board
         for (var x = 0; x < Rows; x++)
         {
             var row = new List<int?>();
-            for (var y = 0; y < Columns; y++)
-            {
-                var contains = _moves.Contains(Numbers[x][y]) ?
-                        Numbers[x][y] : default(int?);
-                row.Add(contains);
-                
-                var column = x == 0 ? new List<int?>() : columns[y];
-                column.Add(contains);
-                
-                if (x == 0)
-                    columns.Add(y, column);
 
-                // Is this necessary?
-                columns[y] = column;
-
-                if (x == Rows - 1 && column.Count == columns.Count && column.All(r => r.HasValue))
-                    return true;
-            }
+            var bingo = CheckColumnsAndRow(x, ref columns, ref row);
+            if (bingo == true)
+                return true;
 
             if (row.All(r => r.HasValue))
                 return true;
         }
 
         return false;
+    }
+
+    private bool? CheckColumnsAndRow(int x, ref Dictionary<int,List<int?>> columns, ref List<int?> row)
+    {
+        for (var y = 0; y < Columns; y++)
+        {
+            var contains = _moves.Contains(Numbers[x][y]) ?
+                Numbers[x][y] : default(int?);
+            row.Add(contains);
+                
+            var column = x == 0 ? new List<int?>() : columns[y];
+            column.Add(contains);
+                
+            if (x == 0)
+                columns.Add(y, column);
+
+            // Is this necessary?
+            columns[y] = column;
+
+            if (x == Rows - 1 && column.Count == columns.Count && column.All(r => r.HasValue))
+                return true;
+        }
+
+        return null;
     }
 
     public string ToStringWithCalled()
