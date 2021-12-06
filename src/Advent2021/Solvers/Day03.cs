@@ -43,7 +43,7 @@ public class Day03 : ISolver
         return BinaryToInt(gamma) * BinaryToInt(epsilon);
     }
 
-    private static int SolvePartB(IReadOnlyList<string> input)
+    private static int SolvePartB(IEnumerable<string> input)
     {
         var ones = new List<int[]>();
         var zeros = new List<int[]>();

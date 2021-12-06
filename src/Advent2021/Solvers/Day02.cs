@@ -19,7 +19,7 @@ public class Day02 : ISolver
     }
 }
 
-public static class EnumerableExtensions
+public static partial class EnumerableExtensions
 {
     public static IEnumerable<(int position, int depth)> ToSteps(this IEnumerable<string> rows)
     {
