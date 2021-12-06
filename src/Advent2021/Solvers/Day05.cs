@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Advent.Common.Extensions;
 using Advent.Common.Interfaces;
 using Advent.Common.Models;
@@ -9,8 +8,6 @@ public class Day05 : ISolver
 {
     public ISolution Solve(string input)
     {
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
         var rows = input.Split(Environment.NewLine);
         var lines = rows.ToLines().ToArray();
         var straight = lines
@@ -33,31 +30,10 @@ public class Day05 : ISolver
             .GroupBy(p => p)
             .Count(g => g.Count() > 1);
 
-        Console.WriteLine($"Took: {stopwatch.Elapsed.TotalMilliseconds}");
-
         return new Solution(partA.ToString(), partB.ToString());
     }
 
-    private void Print(Dictionary<Point, int> points)
-    {
-        var maxX = points.Max(p => p.Key.X);
-        var maxY = points.Max(p => p.Key.Y);
-
-        for (var y = 0; y <= maxY; y++)
-        {
-            for (var x = 0; x <= maxX; x++)
-            {
-                var point = new Point {X = x, Y = y};
-                if (points.TryGetValue(point, out var value))
-                    Console.Write(value);
-                else
-                    Console.Write(".");
-            }
-            Console.WriteLine();
-        }
-    }
-
-    private IEnumerable<Point> GetAllPointsOnStraightLine(Point start, Point end)
+    private static IEnumerable<Point> GetAllPointsOnStraightLine(Point start, Point end)
     {
         int min;
         int max;
@@ -78,7 +54,7 @@ public class Day05 : ISolver
                 .Select(r => new Point {X = r, Y = start.Y});
     }
 
-    private IEnumerable<Point> GetAllPointsOnDiagonalLine(Point start, Point end)
+    private static IEnumerable<Point> GetAllPointsOnDiagonalLine(Point start, Point end)
     {
         var minX = Math.Min(start.X, end.X);
         var maxX = Math.Max(start.X, end.X);

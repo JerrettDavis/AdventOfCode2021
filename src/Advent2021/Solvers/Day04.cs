@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 using Advent.Common.Extensions;
 using Advent.Common.Interfaces;
@@ -10,8 +9,6 @@ public class Day04 : ISolver
 {
     public ISolution Solve(string input)
     {
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
         var lines = input.Split(Environment.NewLine);
         var moves = lines[0]
             .Split(',')
@@ -26,7 +23,7 @@ public class Day04 : ISolver
             .ToList();
         var partA = games.First().score;
         var partB = games.Last().score;
-        Console.WriteLine($"Took: {stopwatch.Elapsed.TotalMilliseconds}");
+
         return new Solution(partA.ToString(), partB.ToString());
     }
 }
