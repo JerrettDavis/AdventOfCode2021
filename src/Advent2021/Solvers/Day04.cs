@@ -107,9 +107,6 @@ public class Board
             if (x == 0)
                 columns.Add(y, column);
 
-            // Is this necessary?
-            columns[y] = column;
-
             if (x == Rows - 1 && column.Count == columns.Count && column.All(r => r.HasValue))
                 return true;
         }
