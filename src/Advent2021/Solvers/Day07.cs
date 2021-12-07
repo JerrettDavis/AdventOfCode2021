@@ -13,18 +13,17 @@ public class Day07 : ISolver
         return new Solution(PartA(crabs).ToString(), PartB(crabs).ToString());
     }
 
-    private int PartA(IList<int> crabs)
+    private long PartA(IList<int> crabs)
     {
-        
         return Enumerable.Range(crabs.Min(), crabs.Max())
             .Select(n => crabs.Sum(crab => Math.Abs(crab - n)))
             .Min();
     }
 
-    private int PartB(IList<int> crabs) {
+    private long PartB(IList<int> crabs) {
         return Enumerable.Range(crabs.Min(), crabs.Max())
-            .Select(n => crabs.Select(crab => Math.Abs(crab - n))
-                .Select(v => v * (v + 1) / 2).Sum())
+            .Select(position => crabs.Select(crab => Math.Abs(crab - position))
+                .Select(steps => (long)steps * (steps + 1)).Sum() / 2)
             .Min();
     }
 }
