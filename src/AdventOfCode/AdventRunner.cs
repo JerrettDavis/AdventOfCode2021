@@ -23,6 +23,7 @@ public static class AdventRunner
     {
         return year switch
         {
+            2019 => typeof(Advent2019.Solvers.Day01).Assembly,
             2021 => typeof(Day01).Assembly,
             _ => throw new MissingYearException($"No solvers for the year '{year}'")
         };

@@ -29,6 +29,12 @@
       <None Update="Data\2021\07.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Data\2019\01.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Data\2019\02.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -36,7 +42,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Advent2019\Advent2019.csproj" />
       <ProjectReference Include="..\Advent.Common\Advent.Common.csproj" />
+      <ProjectReference Include="..\Advent2020\Advent2020.csproj" />
       <ProjectReference Include="..\Advent2021\Advent2021.csproj" />
     </ItemGroup>
 </Project>
