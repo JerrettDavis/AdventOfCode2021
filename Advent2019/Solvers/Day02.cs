@@ -1,6 +1,7 @@
 using Advent.Common.Extensions;
 using Advent.Common.Interfaces;
 using Advent.Common.Models;
+using Advent2019.Utilities;
 
 namespace Advent2019.Solvers;
 
@@ -10,50 +11,44 @@ public class Day02 : ISolver
     {
         var opCode = input.Split(',').Select(r => r.ToInt()).ToArray();
         var partA = CalculatePartA(opCode);
+        var partB = CalculatePartB(opCode);
 
-        return new Solution(partA.ToString(), null!);
+        return new Solution(partA.ToString(), partB.ToString());
     }
 
     private int CalculatePartA(IEnumerable<int> opCode)
     {
-        var output = opCode.ToArray();
-        // Set state
-        output[1] = 12;
-        output[2] = 2;
-
-        return RunOpCode(output)[0];
+        var computer = new OpCodeRunner(opCode);
+        
+        computer.SetState(1, 12);
+        computer.SetState(2, 2);
+        computer.RunOpCode();
+        
+        return computer.Program.First();
     }
 
-    private int[] RunOpCode(IEnumerable<int> input)
+    private int CalculatePartB(IEnumerable<int> opCode)
     {
-        var program = input.ToArray();
-        var index = 0;
-        while ((OpCode)program[index] != OpCode.Halt)
-        {
-            switch ((OpCode)program[index])
-            {
-                case OpCode.Add:
-                    program[program[index + 3]] = program[program[index + 1]] + program[program[index + 2]]; 
-                    break;
-                case OpCode.Multiply:
-                    program[program[index + 3]] = program[program[index + 1]] * program[program[index + 2]];
-                    break;
-                case OpCode.Halt:
-                    return program;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+        const int target = 19690720;
+        var computer = new OpCodeRunner(opCode);
 
-            index += 4;
+        var first = Enumerable.Range(0, 100).ToList();
+        var second = first.ToList();
+
+        foreach (var x in first)
+        {
+            foreach (var y in second)
+            {
+                computer.Reset();
+                computer.SetState(1, x);
+                computer.SetState(2, y);
+                if (computer.RunOpCode() == target)
+                {
+                    return x * 100 + y;
+                }
+            }
         }
 
-        return program;
+        return 0;
     }
-}
-
-public enum OpCode
-{
-    Add = 1,
-    Multiply = 2,
-    Halt = 99
 }
